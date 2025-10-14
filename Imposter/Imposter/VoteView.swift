@@ -4,7 +4,7 @@
 //
 //  Created by Duy Tran on 10/13/25.
 //
-//Placeholder
+//Purpose: one imposter is selected and then confirmed
 //
 
 import SwiftUI
