@@ -77,6 +77,7 @@ struct RevealView: View {
         }
         .padding()
         .navigationTitle("Reveal")
+        .navigationBarBackButtonHidden(true)
         // Navigate to deal cards for the new round
         .navigationDestination(isPresented: $goDealAgain) {
             DealView()

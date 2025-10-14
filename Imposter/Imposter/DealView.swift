@@ -155,6 +155,8 @@ struct DealView: View {
         .animation(.easeInOut, value: hasSeenCard)
         .padding()
         .navigationTitle("Deal Cards")
+        .navigationBarBackButtonHidden(true)
+
     }
 }
 

@@ -59,6 +59,7 @@ struct VoteView: View {
             .padding(.horizontal)
         }
         .navigationTitle("Voting")
+        .navigationBarBackButtonHidden(true)
         // Navigate to Reveal with the chosen player
         .navigationDestination(isPresented: $goToReveal) {
             if let sp = selectedPlayer {

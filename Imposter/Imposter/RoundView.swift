@@ -90,6 +90,7 @@ struct RoundView: View {
         }
         .padding()
         .navigationTitle("Discussion")
+        .navigationBarBackButtonHidden(true)
         .onAppear {
             // Ensure we sync remaining with duration when we land here
             remaining = duration
