@@ -85,28 +85,31 @@ struct DealView: View {
                 )
 
                 // --- CONTROLS ---
-                // Next player is only enabled AFTER the player has successfully revealed once
-                Button {
-                    // Reset per-player reveal flags and move on
-                    showingCard = false
-                    hasSeenCard = false
-                    currentIndex += 1
-                } label: {
-                    Text("Next player")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 14)
-                            .fill(hasSeenCard && !showingCard ? .blue : .gray.opacity(0.4)))
-                        .foregroundStyle(.white)
+                // Show NOTHING at first. After the player has revealed at least once
+                // *and* they’re no longer holding (card is hidden), show the button.
+                if hasSeenCard && !showingCard {
+                    Button {
+                        // Reset per-player reveal flags and move on
+                        showingCard = false
+                        hasSeenCard = false
+                        currentIndex += 1
+                    } label: {
+                        Text("Next player")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 14).fill(.blue))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(.horizontal)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))  // nice appear animation
                 }
-                .disabled(!(hasSeenCard && !showingCard))
-                .padding(.horizontal)
 
-                // Tiny tip to reduce accidental peeking
-                Text("Hand the phone flat to each player. Don’t tap—hold the card.")
+                // Optional tiny tip (keep it visible always)
+                Text("Hand the phone flat to each player. Press & hold; release to hide.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .padding(.top, 4)
+
 
             } else {
                 // All players have seen their cards
@@ -123,7 +126,14 @@ struct DealView: View {
                 }
             }
         }
+        .onChange(of: hasSeenCard && !showingCard, initial: false) { oldValue, newValue in
+            // Fires when the "Next player" button becomes visible (false -> true)
+            if newValue && !oldValue {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }
+        }
         .animation(.easeInOut, value: showingCard)
+        .animation(.easeInOut, value: hasSeenCard)
         .padding()
         .navigationTitle("Deal Cards")
     }
