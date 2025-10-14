@@ -1,59 +1,48 @@
-//
-//  WordBank.swift
-//  Imposter
-//
-//  Created by Duy Tran on 10/13/25.
-//
-//Purpose: offline word list by theme and difficulty.
-//
+// WordBank.swift
+// Purpose: Central place to edit game content.
+// - No difficulty levels.
+// - Each theme has two editable arrays: `words` (true answers) and `hints` (decoy/hint words).
 
 import Foundation
 
-enum Theme: String {
-    case animals, food, jobs, places, random
+struct WordBankTheme {
+    var words: [String]
+    var hints: [String]
 }
 
 struct WordBank {
-    // --- Animals ---
-    static let animalsEasy   = ["Cat","Dog","Fish","Bird","Cow","Frog","Bee","Ant","Duck","Goat"]
-    static let animalsMedium = ["Otter","Falcon","Leopard","Cobra","Raccoon","Walrus","Buffalo","Mule"]
-    static let animalsHard   = ["Axolotl","Okapi","Tapir","Ibis","Numbat","Quokka","Cassowary"]
+    // EDIT HERE: add/remove themes, change words/hints at will.
+    // Keep items short (single words) for clarity on the card.
+    static var themes: [String: WordBankTheme] = [
+        "Animals": .init(
+            words: ["Cat","Dog","Fish","Bird","Cow","Frog","Bee","Duck","Otter","Leopard","Walrus","Falcon","Buffalo","Raccoon","Cobra"],
+            hints: ["Mammal","Reptile","Bird","Insect","Pet","Farm","Wild","Ocean","Forest","Tail","Claws","Wings","Fur","Scales","Herd"]
+        ),
+        "Food": .init(
+            words: ["Pizza","Apple","Bread","Cookie","Cheese","Rice","Cake","Banana","Burrito","Omelette","Pancake","Yogurt","Taco","Burger","Salad"],
+            hints: ["Fruit","Dessert","Breakfast","Dinner","Snack","Dairy","Sweet","Savory","Baked","Grilled","Fried","Sauce","Spicy","Cold","Hot"]
+        ),
+        "Jobs": .init(
+            words: ["Teacher","Doctor","Chef","Farmer","Pilot","Nurse","Baker","Artist","Plumber","Mechanic","Architect","Librarian","Photographer","Paramedic"],
+            hints: ["Hospital","School","Kitchen","Tools","Office","Uniform","Vehicle","Craft","Books","Camera","Team","Client","Manager","License","Hands-on"]
+        ),
+        "Places": .init(
+            words: ["Beach","Forest","Desert","Island","Castle","Bridge","Airport","Museum","Harbor","Canyon","Temple","Volcano","Subway","Palace","Aquarium"],
+            hints: ["Travel","Outside","City","Nature","Water","Mountain","Underground","Historic","Tourist","Crowd","Quiet","Ticket","Map","Guide","View"]
+        ),
+        "Random": .init(
+            words: ["Robot","Diamond","Guitar","Laptop","Balloon","Mirror","Compass","Lantern","Helmet","Backpack","Telescope","Hammer","Candle","Notebook","Rocket"],
+            hints: ["Shiny","Tool","Music","Light","Round","Heavy","Small","Large","Carry","Metal","Glass","Paper","Wood","Outdoor","Indoor"]
+        )
+    ]
 
-    // --- Food ---
-    static let foodEasy   = ["Pizza","Apple","Bread","Cookie","Cheese","Rice","Cake","Banana"]
-    static let foodMedium = ["Lasagna","Burrito","Omelette","Yogurt","Tortilla","Pancake","Lemonade"]
-    static let foodHard   = ["Bouillabaisse","Tiramisu","Ratatouille","Gnocchi"]
-
-    // --- Jobs ---
-    static let jobsEasy   = ["Teacher","Doctor","Chef","Farmer","Pilot","Nurse","Baker","Artist"]
-    static let jobsMedium = ["Plumber","Mechanic","Architect","Librarian","Photographer","Paramedic"]
-    static let jobsHard   = ["Cartographer","Actuary","Cryptographer","Sommelier"]
-
-    // --- Places ---
-    static let placesEasy   = ["Beach","Forest","Desert","Island","Castle","Bridge","Airport","Museum"]
-    static let placesMedium = ["Harbor","Canyon","Temple","Volcano","Subway","Palace","Aquarium"]
-    static let placesHard   = ["Observatory","Cathedral","Archipelago","Peninsula"]
-
-    // Returns a pool for a theme + difficulty.
-    static func words(theme: String, difficulty: Difficulty) -> [String] {
-        let t = theme.lowercased()
-        switch (t, difficulty) {
-        case ("animals", .easy):  return animalsEasy
-        case ("animals", .medium):return animalsMedium
-        case ("animals", .hard):  return animalsHard
-        case ("food", .easy):     return foodEasy
-        case ("food", .medium):   return foodMedium
-        case ("food", .hard):     return foodHard
-        case ("jobs", .easy):     return jobsEasy
-        case ("jobs", .medium):   return jobsMedium
-        case ("jobs", .hard):     return jobsHard
-        case ("places", .easy):   return placesEasy
-        case ("places", .medium): return placesMedium
-        case ("places", .hard):   return placesHard
-        default:
-            // Random = combine several lists so there’s always something.
-            return (animalsEasy + foodEasy + jobsEasy + placesEasy
-                    + animalsMedium + foodMedium + jobsMedium + placesMedium)
-        }
+    /// Return the theme object; falls back to "Random" if unknown.
+    static func theme(_ name: String) -> WordBankTheme {
+        if let t = themes[name] { return t }
+        return themes["Random"] ?? .init(words: ["Word"], hints: ["Hint"])
     }
+
+    /// Convenience helpers
+    static func words(for name: String) -> [String] { theme(name).words }
+    static func hints(for name: String) -> [String] { theme(name).hints }
 }

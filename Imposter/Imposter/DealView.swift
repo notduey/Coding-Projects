@@ -34,21 +34,40 @@ struct DealView: View {
                 Text(player.name)
                     .font(.largeTitle.bold())
 
-                // --- CARD AREA ---
+                // --- CARD ---
                 ZStack {
-                    // Base card background (changes tint when revealed)
+                    let isImp = (currentIndex < game.players.count) ? game.players[currentIndex].isImpostor : false
+
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(showingCard ? .green.opacity(0.3) : .gray.opacity(0.18))
+                        .fill(
+                            showingCard
+                            ? (isImp ? .red.opacity(0.25) : .green.opacity(0.30))
+                            : .gray.opacity(0.18)
+                        )
                         .frame(width: 260, height: 160)
                         .shadow(radius: 4)
 
-                    // Content switches between instruction and the secret
                     if showingCard {
-                        // If impostor -> ??? otherwise secret word
-                        Text(player.isImpostor ? "???" : game.secretWord)
-                            .font(.title)
-                            .fontWeight(.semibold)
+                        if isImp {
+                            // IMP0STER VIEW: Big red "Imposter" + smaller hint line
+                            VStack(spacing: 6) {
+                                Text("Imposter")
+                                    .font(.title.weight(.bold))
+                                    .foregroundStyle(.red)
+
+                                Text("Hint: \(game.impostorHints.first ?? "—")")
+                                    .font(.footnote.weight(.semibold))
+                                    .multilineTextAlignment(.center)
+                                    .foregroundStyle(.secondary)
+                            }
                             .transition(.scale)
+                        } else {
+                            // CREWMATE VIEW: show the real secret word
+                            Text(game.secretWord)
+                                .font(.title)
+                                .fontWeight(.semibold)
+                                .transition(.scale)
+                        }
                     } else {
                         VStack(spacing: 8) {
                             Text("Press & hold to reveal")
@@ -60,6 +79,7 @@ struct DealView: View {
                         }
                     }
                 }
+
                 // Attach two gestures:
                 // 1) LongPress starts the reveal (after 0.5s), fires a haptic once.
                 // 2) A zero-distance Drag ends when the finger lifts, which hides the card.

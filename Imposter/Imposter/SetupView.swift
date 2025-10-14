@@ -4,7 +4,7 @@
 //
 //  Created by Duy Tran on 10/13/25.
 //
-//Purpose: Host picks theme, difficulty, number of imposters, and adds player names
+//Purpose: Host picks theme, number of imposters, and adds player names
 //
 
 import SwiftUI
@@ -27,13 +27,6 @@ struct SetupView: View {
                 Picker("Theme", selection: $game.theme) {
                     ForEach(themes, id: \.self) { theme in
                         Text(theme).tag(theme) // tag is String
-                    }
-                }
-
-                // Difficulty picker (Difficulty selection)
-                Picker("Difficulty", selection: $game.difficulty) {
-                    ForEach(Difficulty.allCases, id: \.self) { diff in
-                        Text(diff.rawValue.capitalized).tag(diff) // tag is Difficulty
                     }
                 }
 
@@ -111,7 +104,6 @@ struct SetupView: View {
     private func resetSetup() {
         game.players.removeAll()
         game.theme = "Animals"
-        game.difficulty = .medium
         game.impostorCount = 1
         game.resetRound()
         newPlayerName = ""

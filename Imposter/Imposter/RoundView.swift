@@ -33,7 +33,7 @@ struct RoundView: View {
     var body: some View {
         VStack(spacing: 28) {
             // Theme & word (you may or may not want to show the theme here)
-            Text("Theme: \(game.theme) • Difficulty: \(game.difficulty.rawValue.capitalized)")
+            Text("Theme: \(game.theme)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -128,9 +128,13 @@ struct RoundView: View {
 }
 
 #Preview {
-    let mock = GameState()
-    mock.theme = "Animals"
-    mock.difficulty = .medium
-    mock.players = [Player(name: "A"), Player(name: "B"), Player(name: "C")]
-    return NavigationStack { RoundView().environment(mock) }
+    NavigationStack {
+        RoundView()
+            .environment({
+                let mock = GameState()
+                mock.theme = "Animals"
+                mock.players = [Player(name: "A"), Player(name: "B"), Player(name: "C")]
+                return mock
+            }())
+    }
 }

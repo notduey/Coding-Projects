@@ -4,7 +4,7 @@
 //
 //  Created by Duy Tran on 10/13/25.
 //
-//Purpose: Holds data the whole app needs (players, theme, imposter count, etc)
+// Purpose: Holds data the whole app needs (players, theme, impostor count, etc)
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ final class Player: Identifiable, Hashable {
     // Identifiable lets List/ForEach render unique rows.
     let id = UUID()
     var name: String
-    // We'll set this later when dealing cards.
+    // Set when dealing cards.
     var isImpostor: Bool = false
 
     init(name: String) {
@@ -27,48 +27,52 @@ final class Player: Identifiable, Hashable {
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
-// Difficulty levels for future word selection.
-enum Difficulty: String, CaseIterable {
-    case easy, medium, hard
-}
-
 // Central game state shared across views.
 // Because it's @Observable, any SwiftUI View that reads its properties
 // will redraw when those properties change.
 @Observable
 final class GameState {
     // --- Setup values the host chooses ---
-    var players: [Player] = []               // list of players for the current session
-    var theme: String = "Animals"            // default theme
-    var difficulty: Difficulty = .medium     // default difficulty
-    var impostorCount: Int = 1               // how many impostors per round (we’ll enforce 1–2 for now)
-
-    // --- Round values (we’ll use in later steps) ---
-    var secretWord: String = ""              // chosen at round start
-    var roundStarted: Bool = false           // toggled when a round begins
+    var players: [Player] = []
+    var theme: String = "Animals"
+    var impostorCount: Int = 1
+    var secretWord: String = ""
+    var impostorHints: [String] = []
+    var roundStarted: Bool = false
 
     // Helper to reset per-round flags while keeping player names.
     func resetRound() {
-        for p in players {
-            p.isImpostor = false
-        }
+        for p in players { p.isImpostor = false }
         secretWord = ""
+        impostorHints.removeAll()
         roundStarted = false
     }
     
+    // Pick `count` hint words from the theme's hint list.
+    // Ensures hints are not equal to the secret (in case your lists overlap).
+    private func makeImpostorHints(from hints: [String], secret: String, count: Int = 1) -> [String] {
+        let candidates = hints.filter { $0.caseInsensitiveCompare(secret) != .orderedSame }
+        return Array(candidates.shuffled().prefix(count))
+    }
+
     // Call at the start of each round to pick a word and assign impostors.
     func prepareNewRound() {
-        // Safety: need at least 3 players and at least 1 non-impostor
         guard players.count >= 3 else { return }
 
-        // Pick a secret word from the local bank
-        let pool = WordBank.words(theme: theme, difficulty: difficulty)
-        secretWord = pool.randomElement() ?? "Pineapple"
+        // Get words and hints for the chosen theme
+        let poolWords = WordBank.words(for: theme)
+        let poolHints = WordBank.hints(for: theme)
 
-        // Clear any old flags
+        // Pick the secret
+        secretWord = poolWords.randomElement() ?? "Pineapple"
+
+        // Make 1 hint for impostors (easy to change to 2–3 later)
+        impostorHints = makeImpostorHints(from: poolHints, secret: secretWord, count: 1)
+
+        // Clear old flags
         for p in players { p.isImpostor = false }
 
-        // Decide how many impostors (cap so there’s always ≥1 non-impostor)
+        // Ensure at least one non-impostor
         let maxImpostors = max(1, min(impostorCount, players.count - 1))
         impostorCount = maxImpostors
 
@@ -79,9 +83,8 @@ final class GameState {
             players[idx].isImpostor = true
         }
 
-        // Optional: shuffle player order so “player 1” isn’t always same person
+        // Shuffle turn order
         players.shuffle()
-
         roundStarted = true
     }
 }
