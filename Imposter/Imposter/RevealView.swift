@@ -78,6 +78,11 @@ struct RevealView: View {
         .padding()
         .navigationTitle("Reveal")
         .navigationBarBackButtonHidden(true)
+        .overlay(alignment: .topTrailing) {
+            HomeButton()
+                .padding(.top, 10)       // keep away from the curved corner / notch
+                .padding(.trailing, 12)
+        }
         // Navigate to deal cards for the new round
         .navigationDestination(isPresented: $goDealAgain) {
             DealView()

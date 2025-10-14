@@ -11,15 +11,17 @@ import SwiftUI
 
 @main
 struct ImpostorWordApp: App {
-    // One shared instance for the whole app lifetime.
-    // @State here makes SwiftUI keep it alive across view updates.
     @State private var game = GameState()
+    @State private var router = Router()
 
     var body: some Scene {
         WindowGroup {
-            // Home is the first screen. We pass `game` down via environment.
-            HomeView()
-                .environment(game)
+            NavigationStack(path: $router.path) {
+                HomeView()
+            }
+            //apply environments to the NavigationStack itself
+            .environment(game)
+            .environment(router)
         }
     }
 }

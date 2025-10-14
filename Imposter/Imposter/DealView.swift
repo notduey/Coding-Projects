@@ -156,7 +156,11 @@ struct DealView: View {
         .padding()
         .navigationTitle("Deal Cards")
         .navigationBarBackButtonHidden(true)
-
+        .overlay(alignment: .topTrailing) {
+            HomeButton()
+                .padding(.top, 10)       // keep away from the curved corner / notch
+                .padding(.trailing, 12)
+        }
     }
 }
 

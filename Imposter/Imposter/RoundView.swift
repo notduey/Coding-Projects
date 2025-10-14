@@ -91,6 +91,12 @@ struct RoundView: View {
         .padding()
         .navigationTitle("Discussion")
         .navigationBarBackButtonHidden(true)
+        .overlay(alignment: .topTrailing) {
+            HomeButton()
+                .padding(.top, 10)       // keep away from the curved corner / notch
+                .padding(.trailing, 12)
+        }
+
         .onAppear {
             // Ensure we sync remaining with duration when we land here
             remaining = duration

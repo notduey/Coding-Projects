@@ -60,6 +60,12 @@ struct VoteView: View {
         }
         .navigationTitle("Voting")
         .navigationBarBackButtonHidden(true)
+        .overlay(alignment: .topTrailing) {
+            HomeButton()
+                .padding(.top, 10)       // keep away from the curved corner / notch
+                .padding(.trailing, 12)
+        }
+
         // Navigate to Reveal with the chosen player
         .navigationDestination(isPresented: $goToReveal) {
             if let sp = selectedPlayer {
