@@ -35,6 +35,21 @@ struct SetupView: View {
                         value: $game.impostorCount,
                         in: 1...2)
             }
+            
+            // ---Section: Hints ---
+            Section {
+                Toggle("Enable hints for impostors", isOn: $game.hintsEnabled)
+
+                // Only adjustable when enabled
+                Stepper("Hints per impostor: \(game.hintCount)",
+                        value: $game.hintCount,
+                        in: 1...3)
+                    .disabled(!game.hintsEnabled)
+            } header: {
+                Text("Hints")
+            } footer: {
+                Text("Hints are decoy clues shown to impostors. Choose 1–3 hints or turn them off.")
+            }
 
             // --- Section: Players ---
             Section("Players") {

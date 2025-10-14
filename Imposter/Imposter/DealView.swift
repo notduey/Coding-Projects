@@ -49,20 +49,22 @@ struct DealView: View {
 
                     if showingCard {
                         if isImp {
-                            // IMP0STER VIEW: Big red "Imposter" + smaller hint line
                             VStack(spacing: 6) {
                                 Text("Imposter")
                                     .font(.title.weight(.bold))
                                     .foregroundStyle(.red)
 
-                                Text("Hint: \(game.impostorHints.first ?? "—")")
-                                    .font(.footnote.weight(.semibold))
-                                    .multilineTextAlignment(.center)
-                                    .foregroundStyle(.secondary)
+                                // Show hints if enabled and we have any
+                                if game.hintsEnabled, !game.impostorHints.isEmpty {
+                                    Text("Hint: \(game.impostorHints.joined(separator: ", "))")
+                                        .font(.footnote.weight(.semibold))
+                                        .multilineTextAlignment(.center)
+                                        .foregroundStyle(.secondary)
+                                        .transition(.opacity)
+                                }
                             }
                             .transition(.scale)
                         } else {
-                            // CREWMATE VIEW: show the real secret word
                             Text(game.secretWord)
                                 .font(.title)
                                 .fontWeight(.semibold)

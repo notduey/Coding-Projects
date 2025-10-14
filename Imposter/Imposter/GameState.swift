@@ -39,52 +39,53 @@ final class GameState {
     var secretWord: String = ""
     var impostorHints: [String] = []
     var roundStarted: Bool = false
+    var hintsEnabled: Bool = true     // Toggle in Setup
+    var hintCount: Int = 1            // 1–3 is a good range
 
     // Helper to reset per-round flags while keeping player names.
     func resetRound() {
         for p in players { p.isImpostor = false }
         secretWord = ""
-        impostorHints.removeAll()
+        impostorHints = []
         roundStarted = false
+        // (optional) reset hint settings
+        hintsEnabled = true
+        hintCount = 1
     }
     
     // Pick `count` hint words from the theme's hint list.
     // Ensures hints are not equal to the secret (in case your lists overlap).
     private func makeImpostorHints(from hints: [String], secret: String, count: Int = 1) -> [String] {
         let candidates = hints.filter { $0.caseInsensitiveCompare(secret) != .orderedSame }
-        return Array(candidates.shuffled().prefix(count))
+        return Array(candidates.shuffled().prefix(max(0, count)))
     }
 
     // Call at the start of each round to pick a word and assign impostors.
     func prepareNewRound() {
         guard players.count >= 3 else { return }
 
-        // Get words and hints for the chosen theme
         let poolWords = WordBank.words(for: theme)
         let poolHints = WordBank.hints(for: theme)
 
-        // Pick the secret
         secretWord = poolWords.randomElement() ?? "Pineapple"
 
-        // Make 1 hint for impostors (easy to change to 2–3 later)
-        impostorHints = makeImpostorHints(from: poolHints, secret: secretWord, count: 1)
+        // NEW: only create hints if enabled and count > 0
+        if hintsEnabled && hintCount > 0 {
+            impostorHints = makeImpostorHints(from: poolHints, secret: secretWord, count: hintCount)
+        } else {
+            impostorHints = []
+        }
 
-        // Clear old flags
         for p in players { p.isImpostor = false }
 
-        // Ensure at least one non-impostor
         let maxImpostors = max(1, min(impostorCount, players.count - 1))
         impostorCount = maxImpostors
 
-        // Randomly choose impostor indices
         let indices = Array(players.indices).shuffled()
-        for i in 0..<maxImpostors {
-            let idx = indices[i]
-            players[idx].isImpostor = true
-        }
+        for i in 0..<maxImpostors { players[indices[i]].isImpostor = true }
 
-        // Shuffle turn order
         players.shuffle()
         roundStarted = true
     }
+
 }
