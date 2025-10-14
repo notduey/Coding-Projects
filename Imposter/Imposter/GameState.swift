@@ -55,4 +55,33 @@ final class GameState {
         secretWord = ""
         roundStarted = false
     }
+    
+    // Call at the start of each round to pick a word and assign impostors.
+    func prepareNewRound() {
+        // Safety: need at least 3 players and at least 1 non-impostor
+        guard players.count >= 3 else { return }
+
+        // Pick a secret word from the local bank
+        let pool = WordBank.words(theme: theme, difficulty: difficulty)
+        secretWord = pool.randomElement() ?? "Pineapple"
+
+        // Clear any old flags
+        for p in players { p.isImpostor = false }
+
+        // Decide how many impostors (cap so there’s always ≥1 non-impostor)
+        let maxImpostors = max(1, min(impostorCount, players.count - 1))
+        impostorCount = maxImpostors
+
+        // Randomly choose impostor indices
+        let indices = Array(players.indices).shuffled()
+        for i in 0..<maxImpostors {
+            let idx = indices[i]
+            players[idx].isImpostor = true
+        }
+
+        // Optional: shuffle player order so “player 1” isn’t always same person
+        players.shuffle()
+
+        roundStarted = true
+    }
 }

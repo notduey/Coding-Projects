@@ -68,18 +68,20 @@ struct SetupView: View {
             // --- Section: Continue ---
             Section {
                 NavigationLink {
-                    // Destination must be a View; we attach a side-effect using onAppear.
-                            DealView()
+                    // Prepare the round (word + impostors) right before dealing
+                    DealView()
                         .onAppear {
-                            game.secretWord = "Banana"   // temporary placeholder
+                            game.prepareNewRound()
                         }
                 } label: {
-                    Text("Continue").font(.headline)
+                    Text("Continue")
+                        .font(.headline)
                 }
                 .disabled(game.players.count < 3)
             } footer: {
                 Text("Tip: 3–12 players is ideal. Try 1 impostor for ≤6 players, 2 for ≥7.")
             }
+
         }
         .navigationTitle("Setup")
         .toolbar {

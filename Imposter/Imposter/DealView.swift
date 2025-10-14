@@ -117,10 +117,7 @@ struct DealView: View {
                     Text("All cards dealt!")
                         .font(.title2.bold())
                     NavigationLink("Start Round") {
-                        // Placeholder until we build RoundView next
-                        Text("Round view coming next step.")
-                            .font(.title3)
-                            .padding()
+                        RoundView()
                     }
                     .buttonStyle(.borderedProminent)
                 }
