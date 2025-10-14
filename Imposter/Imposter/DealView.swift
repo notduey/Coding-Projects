@@ -10,16 +10,15 @@
 //
 
 import SwiftUI
-import UIKit // for haptics
+import UIKit
 
 struct DealView: View {
     @Environment(GameState.self) private var game
+    @Environment(Router.self) private var router
 
-    // Index of the player currently viewing their card
+    // State for dealing flow
     @State private var currentIndex: Int = 0
-    // Whether the current player's card is visible right now
     @State private var showingCard: Bool = false
-    // Whether this player has successfully revealed at least once
     @State private var hasSeenCard: Bool = false
 
     var body: some View {
@@ -27,7 +26,6 @@ struct DealView: View {
             if currentIndex < game.players.count {
                 let player = game.players[currentIndex]
 
-                // Progress + current player's name
                 Text("Player \(currentIndex + 1) of \(game.players.count)")
                     .font(.headline)
 
@@ -36,7 +34,7 @@ struct DealView: View {
 
                 // --- CARD ---
                 ZStack {
-                    let isImp = (currentIndex < game.players.count) ? game.players[currentIndex].isImpostor : false
+                    let isImp = player.isImpostor
 
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
@@ -54,7 +52,6 @@ struct DealView: View {
                                     .font(.title.weight(.bold))
                                     .foregroundStyle(.red)
 
-                                // Show hints if enabled and we have any
                                 if game.hintsEnabled, !game.impostorHints.isEmpty {
                                     Text("Hint: \(game.impostorHints.joined(separator: ", "))")
                                         .font(.footnote.weight(.semibold))
@@ -81,14 +78,10 @@ struct DealView: View {
                         }
                     }
                 }
-
-                // Attach two gestures:
-                // 1) LongPress starts the reveal (after 0.5s), fires a haptic once.
-                // 2) A zero-distance Drag ends when the finger lifts, which hides the card.
+                // Gestures: long-press to reveal (with haptic), drag end to hide on lift
                 .simultaneousGesture(
                     LongPressGesture(minimumDuration: 0.5)
                         .onEnded { _ in
-                            // Only trigger when it wasn't already showing (prevents duplicate haptics)
                             if !showingCard {
                                 showingCard = true
                                 hasSeenCard = true
@@ -99,19 +92,13 @@ struct DealView: View {
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 0)
                         .onEnded { _ in
-                            // Lifting the finger should hide the card instantly
-                            if showingCard {
-                                showingCard = false
-                            }
+                            if showingCard { showingCard = false }
                         }
                 )
 
-                // --- CONTROLS ---
-                // Show NOTHING at first. After the player has revealed at least once
-                // *and* they’re no longer holding (card is hidden), show the button.
+                // Next button appears only after the player has revealed and lifted
                 if hasSeenCard && !showingCard {
                     Button {
-                        // Reset per-player reveal flags and move on
                         showingCard = false
                         hasSeenCard = false
                         currentIndex += 1
@@ -123,30 +110,28 @@ struct DealView: View {
                             .foregroundStyle(.white)
                     }
                     .padding(.horizontal)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))  // nice appear animation
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
 
-                // Optional tiny tip (keep it visible always)
                 Text("Hand the phone flat to each player. Press & hold; release to hide.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .padding(.top, 4)
-
 
             } else {
                 // All players have seen their cards
                 VStack(spacing: 16) {
                     Text("All cards dealt!")
                         .font(.title2.bold())
-                    NavigationLink("Start Round") {
-                        RoundView()
+                    Button("Start Round") {
+                        router.push(.round)
                     }
                     .buttonStyle(.borderedProminent)
                 }
             }
         }
+        // Haptic when the Next button first appears (false -> true)
         .onChange(of: hasSeenCard && !showingCard, initial: false) { oldValue, newValue in
-            // Fires when the "Next player" button becomes visible (false -> true)
             if newValue && !oldValue {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
             }
@@ -155,20 +140,31 @@ struct DealView: View {
         .animation(.easeInOut, value: hasSeenCard)
         .padding()
         .navigationTitle("Deal Cards")
+        .navigationBarTitleDisplayMode(.inline)   // keeps nav height consistent
         .navigationBarBackButtonHidden(true)
-        .overlay(alignment: .topTrailing) {
-            HomeButton()
-                .padding(.top, 10)       // keep away from the curved corner / notch
-                .padding(.trailing, 12)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                HomeBarButton()
+            }
         }
     }
 }
 
 #Preview {
-    // Preview with a sample impostor to see "???"
+    // Preview with a sample impostor to see the red card
     let mock = GameState()
     mock.secretWord = "Banana"
+    mock.hintsEnabled = true
+    mock.impostorHints = ["Honey", "Hive"]
     mock.players = [Player(name: "Alice"), Player(name: "Bob"), Player(name: "Carol")]
     mock.players[1].isImpostor = true
-    return NavigationStack { DealView().environment(mock) }
+
+    let router = Router()
+    let path = NavigationPath()   // ← add this line
+
+    return NavigationStack(path: .constant(path)) {   // ← wrap path in .constant safely
+        DealView()
+            .environment(mock)
+            .environment(router)
+    }
 }

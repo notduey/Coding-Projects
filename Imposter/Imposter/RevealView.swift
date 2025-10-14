@@ -4,8 +4,8 @@
 //
 //  Created by Duy Tran on 10/13/25.
 //
-//Purpose: show whether the voted player was an imposter, reveals all, shows the word.
-//offer to play again or go back
+//  Purpose: Shows whether the voted player was an impostor, reveals everyone,
+//  shows the secret word, and offers “Play again” or “Change setup”.
 //
 
 import SwiftUI
@@ -13,19 +13,19 @@ import UIKit
 
 struct RevealView: View {
     @Environment(GameState.self) private var game
+    @Environment(Router.self) private var router
 
     let votedPlayer: Player
 
+    // Convenience
     private var wasImpostor: Bool { votedPlayer.isImpostor }
     private var impostorNames: String {
-        let names = game.players.filter { $0.isImpostor }.map(\.name)
-        return names.joined(separator: ", ")
+        game.players.filter(\.isImpostor).map(\.name).joined(separator: ", ")
     }
-
-    @State private var goDealAgain = false   // navigate to DealView for new round
 
     var body: some View {
         VStack(spacing: 20) {
+            // Result headline
             Text(wasImpostor ? "Correct! 🎉" : "Wrong 🫣")
                 .font(.largeTitle.bold())
                 .foregroundStyle(wasImpostor ? .green : .red)
@@ -43,7 +43,7 @@ struct RevealView: View {
             .font(.title3)
             .padding(.bottom, 4)
 
-            // Reveal info
+            // Reveal details
             VStack(spacing: 8) {
                 Text("Secret word: **\(game.secretWord)**")
                 Text("Impostor\(impostorNames.contains(",") ? "s" : ""): **\(impostorNames)**")
@@ -54,12 +54,11 @@ struct RevealView: View {
 
             Spacer()
 
-            // Play again → set up a fresh round and go deal cards
+            // Play again → clear history, then push Deal with forward animation
             Button {
-                // New round with same players/options
                 game.prepareNewRound()
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                goDealAgain = true
+                router.restartForward(to: .deal)
             } label: {
                 Text("Play again")
                     .frame(maxWidth: .infinity)
@@ -69,26 +68,22 @@ struct RevealView: View {
             }
             .padding(.horizontal)
 
-            // Option to change options (back to Setup)
-            NavigationLink("Change setup (players / rules)") {
-                SetupView()
+            // Change options → forward-animate to Setup on a clean stack
+            Button("Change setup (players / rules)") {
+                router.restartForward(to: .setup)
             }
             .padding(.top, 4)
         }
         .padding()
         .navigationTitle("Reveal")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .overlay(alignment: .topTrailing) {
-            HomeButton()
-                .padding(.top, 10)       // keep away from the curved corner / notch
-                .padding(.trailing, 12)
-        }
-        // Navigate to deal cards for the new round
-        .navigationDestination(isPresented: $goDealAgain) {
-            DealView()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                HomeBarButton()
+            }
         }
         .onAppear {
-            // fun haptic note when result shows
             let gen = UINotificationFeedbackGenerator()
             gen.notificationOccurred(wasImpostor ? .success : .error)
         }
@@ -100,7 +95,13 @@ struct RevealView: View {
     mock.secretWord = "Banana"
     mock.players = [Player(name: "Alice"), Player(name: "Bob"), Player(name: "Carol")]
     mock.players[1].isImpostor = true
-    return NavigationStack {
-        RevealView(votedPlayer: mock.players[1]).environment(mock)
+
+    let router = Router()
+    let path = NavigationPath()
+
+    return NavigationStack(path: .constant(path)) {
+        RevealView(votedPlayer: mock.players[1])
+            .environment(mock)
+            .environment(router)
     }
 }

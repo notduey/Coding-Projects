@@ -12,6 +12,8 @@ import SwiftUI
 struct SetupView: View {
     // Pull the shared GameState from the environment (provided in ImpostorWordApp)
     @Environment(GameState.self) private var game
+    @Environment(Router.self) private var router
+
 
     @State private var newPlayerName: String = ""
     private let themes = ["Animals", "Food", "Jobs", "Places", "Random"]
@@ -75,19 +77,15 @@ struct SetupView: View {
 
             // --- Section: Continue ---
             Section {
-                NavigationLink {
-                    // Prepare the round (word + impostors) right before dealing
-                    DealView()
-                        .onAppear {
-                            game.prepareNewRound()
-                        }
+                Button {
+                    game.prepareNewRound()    // pick word + impostors
+                    router.push(.deal)        // go to DealView
                 } label: {
-                    Text("Continue")
-                        .font(.headline)
+                    Text("Continue").font(.headline)
                 }
                 .disabled(game.players.count < 3)
             } footer: {
-                Text("Tip: 3–12 players is ideal. Try 1 impostor for ≤6 players, 2 for ≥7.")
+                Text("Tip: 3–12 players is ideal. Try 1 impostor for ≤7 players, 2 for ≥8.")
             }
 
         }

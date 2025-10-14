@@ -11,6 +11,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(GameState.self) private var game
+    @Environment(Router.self) private var router
 
     var body: some View {
         VStack(spacing: 24) {
@@ -25,8 +26,8 @@ struct HomeView: View {
                 .padding(.horizontal)
 
             // Start button → SetupView
-            NavigationLink {
-                SetupView()
+            Button {
+                router.push(.setup)
             } label: {
                 Text("New Game")
                     .font(.title3)

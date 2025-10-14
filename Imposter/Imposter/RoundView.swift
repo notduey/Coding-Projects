@@ -13,6 +13,7 @@ import Combine //for Timer.publish / autoconnect
 
 struct RoundView: View {
     @Environment(GameState.self) private var game
+    @Environment(Router.self) private var router
 
     // --- Timer state (local to this screen) ---
     @State private var duration: Int = 180            // default 3:00 (seconds)
@@ -61,13 +62,12 @@ struct RoundView: View {
 
                 Spacer(minLength: 0)
 
-                // Go to voting (placeholder view for now)
-                NavigationLink {
-                    VoteView()
-                } label: {
-                    Text("Go to Voting")
+                // Go to voting 
+                Button("Go to Voting") {
+                    router.push(.vote)
                 }
-                .disabled(isRunning) // optional: prevent leaving mid-timer
+                .disabled(isRunning)
+
             }
             .padding(.horizontal)
 
@@ -90,13 +90,13 @@ struct RoundView: View {
         }
         .padding()
         .navigationTitle("Discussion")
+        .navigationBarTitleDisplayMode(.inline)   // keeps nav height consistent
         .navigationBarBackButtonHidden(true)
-        .overlay(alignment: .topTrailing) {
-            HomeButton()
-                .padding(.top, 10)       // keep away from the curved corner / notch
-                .padding(.trailing, 12)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                HomeBarButton()
+            }
         }
-
         .onAppear {
             // Ensure we sync remaining with duration when we land here
             remaining = duration
