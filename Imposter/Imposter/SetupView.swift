@@ -68,10 +68,11 @@ struct SetupView: View {
             // --- Section: Continue ---
             Section {
                 NavigationLink {
-                    Text("Next step goes here (DealView)…")
-                        .font(.title3)
-                        .padding()
-                        .navigationTitle("Deal (coming soon)")
+                    // Destination must be a View; we attach a side-effect using onAppear.
+                            DealView()
+                        .onAppear {
+                            game.secretWord = "Banana"   // temporary placeholder
+                        }
                 } label: {
                     Text("Continue").font(.headline)
                 }
