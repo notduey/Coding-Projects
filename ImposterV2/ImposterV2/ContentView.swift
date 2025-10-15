@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Imposter
+//  ImposterV2
 //
 //  Created by Duy Tran on 10/14/25.
 //
