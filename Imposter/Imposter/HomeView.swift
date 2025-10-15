@@ -4,7 +4,7 @@
 //
 //  Created by Duy Tran on 10/13/25.
 //
-//Purpose: Starter page that players can start game on or click how to play
+//  Purpose: Starter page that players can start a game on or read how to play.
 //
 
 import SwiftUI
@@ -15,17 +15,13 @@ struct HomeView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            // App title
-            Text("ImpostorWord")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-
+            // App title is in the header; this is the hero text
             Text("Party game: most players see the secret word—impostors don’t.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal)
 
-            // Start button → SetupView
+            // Start button → Setup
             Button {
                 router.push(.setup)
             } label: {
@@ -38,20 +34,25 @@ struct HomeView: View {
             }
             .padding(.horizontal)
 
-            // How to Play
-            NavigationLink("How to Play") {
-                Text("Explain rules here (coming soon).")
-                    .padding()
-                    .navigationTitle("How to Play")
-                    // do NOT hide back here; we want to be able to return to Home
+            // How to Play (push a simple screen with its own AppHeader)
+            Button("How to Play") {
+                router.push(.howToPlay)   // <-- add this route (see note below)
             }
+
+            Spacer(minLength: 0)
         }
         .padding()
-        .navigationBarBackButtonHidden(true) // keep Home clean (no back arrow at root)
+        .toolbar(.hidden)  // hide the system nav bar everywhere in this view
+        .safeAreaInset(edge: .top) {
+            AppHeader(title: "ImpostorWord", showBack: false) // custom header
+        }
     }
 }
 
 #Preview {
-    // Preview needs its own stack, but the real app will provide it at the root.
-    NavigationStack { HomeView().environment(GameState()) }
+    NavigationStack {
+        HomeView()
+            .environment(GameState())
+            .environment(Router())
+    }
 }

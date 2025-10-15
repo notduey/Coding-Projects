@@ -19,6 +19,7 @@ final class Router {
         case round
         case vote
         case reveal(votedID: UUID?)  // Player.ID is UUID in your model
+        case howToPlay
     }
 
     func push(_ route: Route) {
@@ -39,5 +40,9 @@ final class Router {
     func restartForward(to route: Route) {
         withTransaction(Transaction(animation: nil)) { path = NavigationPath() } // clear no anim
         withAnimation(.easeInOut) { path.append(route) }                         // forward push
+    }
+    
+    func pop() {
+        if !path.isEmpty { path.removeLast() }
     }
 }

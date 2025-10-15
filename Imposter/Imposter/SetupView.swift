@@ -2,47 +2,40 @@
 //  SetupView.swift
 //  Imposter
 //
-//  Created by Duy Tran on 10/13/25.
-//
-//Purpose: Host picks theme, number of imposters, and adds player names
+//  Purpose: Host picks theme, number of impostors, hints options, and adds player names
 //
 
 import SwiftUI
 
 struct SetupView: View {
-    // Pull the shared GameState from the environment (provided in ImpostorWordApp)
     @Environment(GameState.self) private var game
     @Environment(Router.self) private var router
-
 
     @State private var newPlayerName: String = ""
     private let themes = ["Animals", "Food", "Jobs", "Places", "Random"]
 
     var body: some View {
-        // ↓ This line creates a bindable view of `game` so `$game.*` works.
+        // Bindable alias so $game.* works in Pickers/Steppers
         @Bindable var game = game
 
         Form {
             // --- Section: Game Options ---
             Section("Game Options") {
-                // Theme picker (String selection)
                 Picker("Theme", selection: $game.theme) {
                     ForEach(themes, id: \.self) { theme in
-                        Text(theme).tag(theme) // tag is String
+                        Text(theme).tag(theme)
                     }
                 }
 
-                // 1–2 impostors for now
                 Stepper("Impostors: \(game.impostorCount)",
                         value: $game.impostorCount,
                         in: 1...2)
             }
-            
-            // ---Section: Hints ---
+
+            // --- Section: Hints ---
             Section {
                 Toggle("Enable hints for impostors", isOn: $game.hintsEnabled)
 
-                // Only adjustable when enabled
                 Stepper("Hints per impostor: \(game.hintCount)",
                         value: $game.hintCount,
                         in: 1...3)
@@ -75,25 +68,29 @@ struct SetupView: View {
                 }
             }
 
-            // --- Section: Continue ---
+            // --- Section: Actions ---
             Section {
                 Button {
-                    game.prepareNewRound()    // pick word + impostors
-                    router.push(.deal)        // go to DealView
+                    game.prepareNewRound()
+                    router.push(.deal)      // go to DealView
                 } label: {
                     Text("Continue").font(.headline)
                 }
                 .disabled(game.players.count < 3)
+
+                Button(role: .destructive) {
+                    resetSetup()
+                } label: {
+                    Text("Reset Setup")
+                }
             } footer: {
                 Text("Tip: 3–12 players is ideal. Try 1 impostor for ≤7 players, 2 for ≥8.")
             }
-
         }
-        .navigationTitle("Setup")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Reset") { resetSetup() }
-            }
+        // Hide system nav bar; use custom header that slides with the page
+        .toolbar(.hidden)
+        .safeAreaInset(edge: .top) {
+            AppHeader(title: "Setup", showBack: true)
         }
     }
 
@@ -118,6 +115,8 @@ struct SetupView: View {
         game.players.removeAll()
         game.theme = "Animals"
         game.impostorCount = 1
+        game.hintsEnabled = true
+        game.hintCount = 1
         game.resetRound()
         newPlayerName = ""
     }
@@ -125,6 +124,8 @@ struct SetupView: View {
 
 #Preview {
     NavigationStack {
-        SetupView().environment(GameState())
+        SetupView()
+            .environment(GameState())
+            .environment(Router())
     }
 }

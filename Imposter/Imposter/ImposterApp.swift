@@ -34,6 +34,8 @@ struct ImpostorWordApp: App {
                             } else {
                                 RevealView(votedPlayer: game.players.first!)
                             }
+                        case .howToPlay:
+                            HowToPlayView()
                         }
                     }
             }

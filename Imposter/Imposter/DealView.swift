@@ -139,13 +139,12 @@ struct DealView: View {
         .animation(.easeInOut, value: showingCard)
         .animation(.easeInOut, value: hasSeenCard)
         .padding()
-        .navigationTitle("Deal Cards")
-        .navigationBarTitleDisplayMode(.inline)   // keeps nav height consistent
+        // .navigationTitle("Deal Cards")            // REMOVE
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                HomeBarButton()
-            }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden)                             // hide system toolbar/nav bar
+        .safeAreaInset(edge: .top) {
+            AppHeader(title: "Deal Cards", showBack: true)   // back + home, fixed position, slides with page
         }
     }
 }

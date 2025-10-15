@@ -89,13 +89,12 @@ struct RoundView: View {
             Spacer()
         }
         .padding()
-        .navigationTitle("Discussion")
-        .navigationBarTitleDisplayMode(.inline)   // keeps nav height consistent
+        // .navigationTitle("Discussion")            // REMOVE
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                HomeBarButton()
-            }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden)
+        .safeAreaInset(edge: .top) {
+            AppHeader(title: "Discussion", showBack: true)
         }
         .onAppear {
             // Ensure we sync remaining with duration when we land here

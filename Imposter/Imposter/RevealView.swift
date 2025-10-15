@@ -75,13 +75,12 @@ struct RevealView: View {
             .padding(.top, 4)
         }
         .padding()
-        .navigationTitle("Reveal")
-        .navigationBarTitleDisplayMode(.inline)
+        // .navigationTitle("Reveal")                 // REMOVE
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                HomeBarButton()
-            }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden)
+        .safeAreaInset(edge: .top) {
+            AppHeader(title: "Reveal", showBack: true)
         }
         .onAppear {
             let gen = UINotificationFeedbackGenerator()

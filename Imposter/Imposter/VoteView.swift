@@ -57,13 +57,12 @@ struct VoteView: View {
             .disabled(selectedID == nil)
             .padding(.horizontal)
         }
-        .navigationTitle("Voting")
-        .navigationBarTitleDisplayMode(.inline)   // keeps nav height consistent
+        // .navigationTitle("Voting")                 // REMOVE
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                HomeBarButton()
-            }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden)
+        .safeAreaInset(edge: .top) {
+            AppHeader(title: "Voting", showBack: true)
         }
     }
 }
