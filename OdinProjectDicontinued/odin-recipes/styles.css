@@ -1,0 +1,67 @@
+* {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.title {
+    font-style: italic;
+    font-size: 150px;
+    font-weight: 900;
+    background-color: black;
+
+    display: block;
+    margin: 50px auto 100px;
+    padding: 15px;
+    height: auto;
+    width: 500px;
+    border-radius: 15px;
+}
+
+li {
+    margin-bottom: 50px;
+}
+
+.links {
+    display: inline-block;
+    text-align: left;
+    list-style-type: none;
+    font-size: 25px;
+    font-weight: 550;
+
+}
+/* list-style-type: none; removes the bullet points on the ul opening/closing tag (unordered list) */
+
+.centerblack {
+    text-align: center;
+    color: black;
+}
+
+.centerwhite {
+    text-align: center;
+    color: white;
+}
+
+.centerwhite a:visited {
+    color: white;
+    text-decoration: none;
+}
+
+a:link {
+    color:black;
+    text-decoration: none;
+}
+/* a:link selects unvisited links */
+/* text-decoration: none; removes all properties of the link text i.e. underlined text */
+
+a:visited {
+    color:black;
+}
+/* a:visited selects visited links */
+
+a:hover {
+    color: rgb(125,125,125);
+}
+/* a:hover selects and changes the properties when you hover over a link with your cursor */
+
+.title a:hover {
+    color: red;
+}
